@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import "tailwindcss";
+
+
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.7s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+
+@theme {
+  --font-rubik: "Rubik", sans-serif;
+  --color-whitePrimary: #FAFAFA;
+  --color-bluePrimary: #4A69E2;
+  --color-textBlack: #232321;
+}
+
+body {
+  background-color: #E7E7E3;
+  font-family: var(--font-rubik);
+  color: #232321;
+}
