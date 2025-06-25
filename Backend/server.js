@@ -19,7 +19,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
-
+const userAuthRoutes = require("./routes/userRoutes");
+app.use("/api/user", userAuthRoutes);
 // ** Constants from .env
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;

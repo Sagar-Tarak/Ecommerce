@@ -2,7 +2,7 @@ import React from "react";
 
 const Cards = ({ image, title, price, isNew }) => {
   return (
-    <div className=" p-4 rounded-2xl w-[350px] h-[350px]">
+    <div className=" p-4 rounded-2xl w-[350px]">
       {/* Image Container */}
       <div className="relative bg-white p-2 rounded-3xl">
         {/* "New" Badge */}
@@ -14,7 +14,7 @@ const Cards = ({ image, title, price, isNew }) => {
         <img
           src={image}
           alt={title}
-          className="w-[318px] h-[350px] object-cover rounded-3xl"
+          className="w-[318px] h-[250px] object-cover rounded-3xl"
         />
       </div>
 

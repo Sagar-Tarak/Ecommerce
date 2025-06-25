@@ -73,7 +73,7 @@ function Navbar() {
         <ul className="hidden md:flex gap-6 list-none">
           {[
             { icon: <FaSearch size={20} />, label: "Search", path: "/search" },
-            { icon: <FaUser size={20} />, label: "Profile", path: "/profile" },
+            { icon: <FaUser size={20} />, label: "Profile", path: "/user" },
             {
               icon: <FaShoppingCart size={20} />,
               label: "Cart",
@@ -121,7 +121,7 @@ function Navbar() {
             <Link to="/search" onClick={toggleMenu}>
               <FaSearch size={20} />
             </Link>
-            <Link to="/profile" onClick={toggleMenu}>
+            <Link to="/user" onClick={toggleMenu}>
               <FaUser size={20} />
             </Link>
             <Link to="/cart" onClick={toggleMenu} className="relative">
