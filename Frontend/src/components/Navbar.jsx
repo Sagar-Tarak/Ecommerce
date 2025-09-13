@@ -8,6 +8,8 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useCart } from "../contexts/CartContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const navItemVariants = {
   hidden: { opacity: 0, y: -10 },
@@ -20,6 +22,8 @@ const navItemVariants = {
 
 function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { cartCount } = useCart();
+  const { isAuthenticated, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -73,11 +77,15 @@ function Navbar() {
         <ul className="hidden md:flex gap-6 list-none">
           {[
             { icon: <FaSearch size={20} />, label: "Search", path: "/search" },
-            { icon: <FaUser size={20} />, label: "Profile", path: "/user" },
+            { 
+              icon: <FaUser size={20} />, 
+              label: isAuthenticated ? "Profile" : "Login", 
+              path: isAuthenticated ? "/user" : "/login" 
+            },
             {
               icon: <FaShoppingCart size={20} />,
               label: "Cart",
-              badge: "3",
+              badge: cartCount > 0 ? cartCount.toString() : null,
               path: "/cart",
             },
           ].map((item, i) => (
@@ -101,6 +109,21 @@ function Navbar() {
               </Link>
             </motion.li>
           ))}
+          {isAuthenticated && (
+            <motion.li
+              custom={3}
+              initial="hidden"
+              animate="visible"
+              variants={navItemVariants}
+            >
+              <button 
+                onClick={logout}
+                className="hover:text-orange-500 transition text-sm font-medium"
+              >
+                Logout
+              </button>
+            </motion.li>
+          )}
         </ul>
       </div>
 
@@ -121,16 +144,31 @@ function Navbar() {
             <Link to="/search" onClick={toggleMenu}>
               <FaSearch size={20} />
             </Link>
-            <Link to="/user" onClick={toggleMenu}>
+            <Link to={isAuthenticated ? "/user" : "/login"} onClick={toggleMenu}>
               <FaUser size={20} />
             </Link>
             <Link to="/cart" onClick={toggleMenu} className="relative">
               <FaShoppingCart size={20} />
-              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-semibold rounded-full h-5 w-5 flex items-center justify-center">
-                3
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-semibold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Link>
           </div>
+          {isAuthenticated && (
+            <div className="text-center">
+              <button 
+                onClick={() => {
+                  logout();
+                  toggleMenu();
+                }}
+                className="text-gray-700 hover:text-orange-500 transition text-sm font-medium"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       )}
     </motion.div>

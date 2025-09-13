@@ -60,6 +60,40 @@ router.get("/:userId", protectUser, async (req, res) => {
   }
 });
 
+// ** Update item quantity in cart - PUT route (Protected for authenticated users)
+router.put("/update", protectUser, async (req, res) => {
+  const { productId, quantity } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const itemIndex = cart.items.findIndex(
+      (item) => item.product.toString() === productId.toString()
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Item not found in cart" });
+    }
+
+    if (quantity <= 0) {
+      // Remove item if quantity is 0 or negative
+      cart.items.splice(itemIndex, 1);
+    } else {
+      cart.items[itemIndex].quantity = quantity;
+    }
+
+    await cart.save();
+    await cart.populate("items.product");
+    res.json(cart);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // ** Remove items from the cart - DELETE route (Protected for authenticated users)
 router.delete("/remove", protectUser, async (req, res) => {
   const { productId } = req.body;
@@ -77,7 +111,43 @@ router.delete("/remove", protectUser, async (req, res) => {
     );
     cart.items = updatedItems; // Update cart with remaining items
     await cart.save();
+    await cart.populate("items.product");
     res.json(cart); // Return updated cart
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ** Clear entire cart - DELETE route (Protected for authenticated users)
+router.delete("/clear", protectUser, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    cart.items = [];
+    await cart.save();
+    res.json({ message: "Cart cleared successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ** Get cart count - GET route (Protected for authenticated users)
+router.get("/count", protectUser, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) {
+      return res.json({ count: 0 });
+    }
+
+    const count = cart.items.reduce((total, item) => total + item.quantity, 0);
+    res.json({ count });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

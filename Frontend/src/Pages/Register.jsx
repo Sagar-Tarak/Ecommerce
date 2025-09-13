@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { FaFacebookF, FaGoogle, FaApple } from "react-icons/fa";
 import { HiMail, HiLockClosed, HiUser, HiEye, HiEyeOff } from "react-icons/hi";
-import { registerUser } from "../CoreAPI/CoreAPI";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -10,25 +11,34 @@ export default function Register() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const data = await registerUser({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    });
 
-    console.log("Registered!", data);
-    // Optional: Redirect to login
-  } catch (err) {
-    console.error("Registration error:", err.message);
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const result = await register(formData);
+      
+      if (result.success) {
+        navigate('/login');
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-[#FAFAFA]">
@@ -93,12 +103,18 @@ const handleSubmit = async (e) => {
               </button>
             </div>
 
+            {/* Error */}
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
+
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-black text-white py-2 rounded hover:opacity-90 transition font-semibold uppercase tracking-wide"
+              disabled={loading}
+              className="w-full bg-black text-white py-2 rounded hover:opacity-90 transition font-semibold uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign Up
+              {loading ? 'Signing Up...' : 'Sign Up'}
             </button>
           </form>
 

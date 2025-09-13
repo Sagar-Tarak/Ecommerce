@@ -6,6 +6,11 @@ const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const userAuthRoutes = require("./routes/userRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const wishlistRoutes = require("./routes/wishlistRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+
 // ** Load environment variables
 dotenv.config();
 
@@ -15,12 +20,16 @@ const app = express();
 // ** middleware
 app.use(cors());
 app.use(express.json()); // ! parse JSON request
-app.use("/api/products", productRoutes);
+
+// ** Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userAuthRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
-const userAuthRoutes = require("./routes/userRoutes");
-app.use("/api/user", userAuthRoutes);
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/reviews", reviewRoutes);
 // ** Constants from .env
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;

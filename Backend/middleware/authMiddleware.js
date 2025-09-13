@@ -2,14 +2,14 @@ const jwt = require("jsonwebtoken");
 
 const protectAdmin = (req, res, next) => {
   const token =
-    req.headers.authorization && req.headers.authorization.split(" ");
+    req.headers.authorization && req.headers.authorization.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ message: "Not Authorized , no token" });
   }
 
   try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.admin = decoded;
     next();
   } catch (error) {
@@ -20,7 +20,7 @@ const protectAdmin = (req, res, next) => {
 /// * User Middleware to protect  user Routes
 const protectUser = (req, res, next) => {
   const token =
-    req.headers.authorization && req.headers.authorization.split(" ");
+    req.headers.authorization && req.headers.authorization.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ message: "Not Authorized , no token" });

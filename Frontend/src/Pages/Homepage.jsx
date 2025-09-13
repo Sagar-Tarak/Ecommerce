@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Cards from "../components/cards";
 import Categories from "../components/Categories";
 import Review from "../components/Review";
 import { motion } from "framer-motion";
 import Footer from "../components/Footer";
+import { getFeaturedProducts, getNewProducts } from "../CoreAPI/CoreAPI";
 const textFade = {
   hidden: { opacity: 0, y: 60 },
   visible: {
@@ -33,6 +34,30 @@ const cardStagger = {
 };
 
 function Homepage() {
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [newProducts, setNewProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const [featured, newProds] = await Promise.all([
+          getFeaturedProducts(),
+          getNewProducts()
+        ]);
+        setFeaturedProducts(featured);
+        setNewProducts(newProds);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <>
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -127,26 +152,35 @@ function Homepage() {
 
             {/* Cards Section */}
             <motion.div className="flex justify-center gap-15 mt-20 mb-60">
-              {[
-                { image: "/1.jpg", title: "NIKE AIR MAX 270" },
-                { image: "/2.jpg", title: "NIKE AIR MAX 270" },
-                { image: "/3.jpg", title: "NIKE AIR MAX 270" },
-                { image: "/5.jpg", title: "PUMA RS-X3 X-RAY" },
-              ].map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  <Cards
-                    image={item.image}
-                    title={item.title}
-                    price="125"
-                    isNew={true}
+              {loading ? (
+                // Loading skeleton
+                Array.from({ length: 4 }).map((_, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.2 }}
+                    className="w-64 h-80 bg-gray-200 rounded-lg animate-pulse"
                   />
-                </motion.div>
-              ))}
+                ))
+              ) : (
+                newProducts.slice(0, 4).map((product, index) => (
+                  <motion.div
+                    key={product._id}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.2 }}
+                  >
+                    <Cards
+                      image={product.images?.[0] || "/1.jpg"}
+                      title={product.name}
+                      price={product.price}
+                      isNew={product.isNew}
+                      productId={product._id}
+                    />
+                  </motion.div>
+                ))
+              )}
             </motion.div>
           </motion.div>
         </div>

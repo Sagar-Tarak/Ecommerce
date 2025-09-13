@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { FaFacebookF, FaGoogle, FaApple } from "react-icons/fa";
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from "react-icons/hi";
-import { loginUser } from "../CoreAPI/CoreAPI";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,20 +18,20 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    setSuccess(false);
+    setLoading(true);
 
     try {
-      const data = await loginUser(formData);
-      console.log("Logged in:", data);
-
-      // Save token (or user data)
-      localStorage.setItem("token", data.token);
-
-      setSuccess(true);
-      // Optional: redirect
-      // window.location.href = "/dashboard";
+      const result = await login(formData);
+      
+      if (result.success) {
+        navigate('/');
+      } else {
+        setError(result.error);
+      }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,12 +83,9 @@ export default function Login() {
               </button>
             </div>
 
-            {/* Error or Success */}
+            {/* Error */}
             {error && (
               <p className="text-red-500 text-sm text-center">{error}</p>
-            )}
-            {success && (
-              <p className="text-green-600 text-sm text-center">Login successful!</p>
             )}
 
             {/* Forgot Password */}
@@ -98,9 +98,10 @@ export default function Login() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-black text-white py-2 rounded hover:opacity-90 transition font-semibold uppercase tracking-wide"
+              disabled={loading}
+              className="w-full bg-black text-white py-2 rounded hover:opacity-90 transition font-semibold uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Log In
+              {loading ? 'Logging In...' : 'Log In'}
             </button>
           </form>
 
